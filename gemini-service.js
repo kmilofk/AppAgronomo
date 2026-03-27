@@ -1,91 +1,152 @@
-/**
- * gemini-service.js (Configurado para OpenRouter)
- * Sistema de diagnóstico agrícola
- * Desarrollado por Ing Hernan Camilo
- */
+// gemini-service.js - Versión corregida con modelo válido
+console.log("🔄 Cargando gemini-service.js...");
 
-const API_KEY = "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";
-const API_URL = "https://openrouter.ai/api/v1/chat/completions";
+const GEMINI_API_KEY = "AIzaSyAzg62__McFpjBQW_xgXndJkPBQyopdOQo";
+// ✅ USAR UN MODELO VÁLIDO - Gemini 2.5 Flash
+const GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
 
 async function consultarExpertoIA(promptUsuario, imagenBase64 = null, mimeType = "image/jpeg") {
+    console.log("🔍 consultarExpertoIA llamada con:");
+    console.log("- Prompt:", promptUsuario?.substring(0, 50) + "...");
+    console.log("- Tiene imagen:", !!imagenBase64);
+    console.log("- MimeType:", mimeType);
+
     try {
-        // Usamos Gemini 2.0 Flash a través de OpenRouter (Excelente para visión y rápido)
-        const modelo = "google/gemini-2.0-flash-001";
-
         const systemPrompt = `Eres un Ingeniero Agrónomo experto en cultivos tropicales de Colombia.
-Tu objetivo es diagnosticar problemas en plantas.
-REGLAS:
-1. Responde en español sencillo y profesional.
-2. Si hay imagen, analízala detalladamente.
-3. RESPONDE ÚNICAMENTE con un objeto JSON válido con texto PLANO, sin formato markdown.
-4. NO uses asteriscos (*), negritas (**), cursivas, ni ningún carácter de formato especial.
-5. Los tratamientos deben ser frases cortas y concretas, sin numeración interna (la numeración se añade en la app).
-6. Evita guiones, viñetas o cualquier marcador de lista en el texto.
+Tu objetivo es diagnosticar problemas en plantas a partir de imágenes y descripciones.
 
-Estructura del JSON esperado:
+REGLAS IMPORTANTES:
+1. Responde ÚNICAMENTE con un objeto JSON válido, sin texto adicional fuera del JSON.
+2. NO uses markdown, asteriscos, negritas, cursivas ni ningún formato especial.
+3. Los textos deben ser en español sencillo y plano.
+4. Los tratamientos deben ser un ARRAY de strings, cada uno una acción concreta y corta.
+5. NO incluyas números ni viñetas en los strings del array de tratamientos.
+
+Ejemplo de respuesta esperada:
 {
-  "diagnostico": "Texto descriptivo claro sin asteriscos ni formato especial",
-  "tratamiento": ["Primera acción concreta", "Segunda acción concreta", "Tercera acción concreta"],
-  "producto": "Nombre comercial y dosis específica o No aplica",
-  "consejo": "Recomendación breve y práctica",
-  "urgencia": "Alta, Media o Baja"
+  "diagnostico": "La planta presenta antracnosis, una enfermedad fúngica que causa manchas oscuras en hojas y frutos",
+  "tratamiento": ["Podar las hojas y ramas afectadas", "Aplicar fungicida a base de cobre", "Mejorar la ventilación entre plantas"],
+  "producto": "Fungicida cúprico 5g por litro de agua",
+  "consejo": "Realiza aplicaciones cada 7 días hasta controlar la enfermedad",
+  "urgencia": "Media"
 }`;
 
-        // Estructura de contenido para OpenRouter (compatible con OpenAI)
-        let contenidoMensaje = [];
-        contenidoMensaje.push({ type: "text", text: promptUsuario });
+        // Construir el prompt completo
+        let fullPrompt = `${systemPrompt}\n\nPregunta del agricultor: ${promptUsuario}\n\nAnaliza la imagen y proporciona el diagnóstico en formato JSON.`;
 
-        if (imagenBase64) {
-            contenidoMensaje.push({
-                type: "image_url",
-                image_url: {
-                    url: `data:${mimeType};base64,${imagenBase64}`
+        // Construir los contenidos para Gemini
+        const parts = [{ text: fullPrompt }];
+
+        // Si hay imagen, agregarla
+        if (imagenBase64 && imagenBase64.trim() !== "") {
+            parts.push({
+                inlineData: {
+                    mimeType: mimeType,
+                    data: imagenBase64
                 }
             });
         }
 
-        const response = await fetch(API_URL, {
-            method: 'POST',
-            headers: {
-                'Authorization': `Bearer ${API_KEY}`,
-                'Content-Type': 'application/json',
-                'HTTP-Referer': 'https://agro-red.app', // Opcional para OpenRouter
-                'X-Title': 'AgroRed App'
+        const requestBody = {
+            contents: [{
+                parts: parts
+            }],
+            generationConfig: {
+                temperature: 0.2,
+                maxOutputTokens: 1000,
+                topP: 0.95
             },
-            body: JSON.stringify({
-                model: modelo,
-                messages: [
-                    { role: "system", content: systemPrompt },
-                    { role: "user", content: contenidoMensaje }
-                ],
-                temperature: 0.3,
-                max_tokens: 1000
-            })
+            safetySettings: [
+                { category: "HARM_CATEGORY_HARASSMENT", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_HATE_SPEECH", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_SEXUALLY_EXPLICIT", threshold: "BLOCK_NONE" },
+                { category: "HARM_CATEGORY_DANGEROUS_CONTENT", threshold: "BLOCK_NONE" }
+            ]
+        };
+
+        console.log("📤 Enviando petición a Gemini con modelo: gemini-2.5-flash");
+
+        const response = await fetch(`${GEMINI_API_URL}?key=${GEMINI_API_KEY}`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(requestBody)
         });
+
+        console.log("📥 Respuesta recibida. Status:", response.status);
 
         if (!response.ok) {
             const errorData = await response.json();
-            throw new Error(errorData.error?.message || "Error desconocido en OpenRouter");
+            console.error("❌ Error HTTP completo:", errorData);
+            throw new Error(errorData.error?.message || `Error HTTP ${response.status}`);
         }
 
         const data = await response.json();
-        let rawText = data.choices[0].message.content;
+        console.log("✅ Datos recibidos de Gemini");
 
-        // Limpiar el texto de posibles bloques de código markdown
-        rawText = rawText.replace(/```json/gi, '').replace(/```/g, '').trim();
+        if (!data.candidates || data.candidates.length === 0) {
+            throw new Error("No se recibió respuesta de Gemini");
+        }
 
-        return JSON.parse(rawText);
+        let rawText = data.candidates[0].content.parts[0].text;
+        console.log("📝 Respuesta cruda:", rawText);
+
+        // Extraer JSON
+        function extractJSON(text) {
+            let cleaned = text.replace(/```json\s*/gi, '')
+                .replace(/```\s*/g, '')
+                .trim();
+
+            const firstBrace = cleaned.indexOf('{');
+            const lastBrace = cleaned.lastIndexOf('}');
+
+            if (firstBrace !== -1 && lastBrace !== -1 && lastBrace > firstBrace) {
+                cleaned = cleaned.substring(firstBrace, lastBrace + 1);
+            }
+
+            return cleaned;
+        }
+
+        const jsonString = extractJSON(rawText);
+        console.log("🔧 JSON a parsear:", jsonString);
+
+        let jsonResult;
+        try {
+            jsonResult = JSON.parse(jsonString);
+        } catch (parseError) {
+            console.error("⚠️ Error parseando JSON:", parseError);
+            jsonResult = {
+                diagnostico: rawText.substring(0, 200),
+                tratamiento: ["Consulta con un agrónomo especialista"],
+                producto: "No aplica",
+                consejo: "Envía la imagen nuevamente con mejor iluminación",
+                urgencia: "Media"
+            };
+        }
+
+        // Validar estructura
+        const result = {
+            diagnostico: jsonResult.diagnostico || "No se pudo determinar",
+            tratamiento: Array.isArray(jsonResult.tratamiento) ? jsonResult.tratamiento : ["Consulta con especialista"],
+            producto: jsonResult.producto || "No aplica",
+            consejo: jsonResult.consejo || "Mantén monitoreo constante",
+            urgencia: jsonResult.urgencia || "Media"
+        };
+
+        console.log("✨ Resultado final:", result);
+        return result;
 
     } catch (error) {
-        console.error("Error en el servicio de IA:", error);
+        console.error("❌ Error en consultarExpertoIA:", error);
         return {
-            diagnostico: "Error de conexión: " + error.message,
-            tratamiento: ["Verifica tu conexión", "Reintenta en un momento"],
+            diagnostico: "Error al conectar con el servicio. Intenta nuevamente.",
+            tratamiento: ["Verifica tu conexión a internet", "Reintenta en unos momentos"],
             producto: "No disponible",
-            consejo: "Asegúrate de tener buena señal.",
+            consejo: "Contacta a tu agrónomo de confianza",
             urgencia: "Media"
         };
     }
 }
 
+// Exportar para uso global
 window.consultarExpertoIA = consultarExpertoIA;
+console.log("✅ gemini-service.js cargado correctamente. Modelo: gemini-2.5-flash");

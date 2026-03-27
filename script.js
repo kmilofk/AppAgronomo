@@ -473,8 +473,7 @@ function initInteractions() {
         }
 
         try {
-            const jsonResult = await window.consultarExpertoIA(promptUsuario, currentBase64Image, currentMimeType);
-
+            const jsonResult = await consultarExpertoIA(promptUsuario, currentBase64Image, currentMimeType);
             // Incrementar contador de consultas solo en caso de éxito
             incrementQueryCount();
 
@@ -569,30 +568,29 @@ function renderFromJSON(jsonObj) {
 function sanitizeText(text) {
     if (!text) return '';
 
-    let sanitized = text;
+    let sanitized = String(text);
 
-    // Remove asterisks (single and double for bold/italic)
+    // Eliminar asteriscos
     sanitized = sanitized.replace(/\*\*/g, '');
     sanitized = sanitized.replace(/\*/g, '');
 
-    // Remove underscore formatting
+    // Eliminar underscores
     sanitized = sanitized.replace(/__/g, '');
     sanitized = sanitized.replace(/_/g, '');
 
-    // Remove markdown headers
+    // Eliminar encabezados markdown
     sanitized = sanitized.replace(/^#+\s*/gm, '');
 
-    // Remove markdown list markers ( -, *, + at start of line)
-    sanitized = sanitized.replace(/^[\-\*\+]\s*/gm, '');
+    // Eliminar patrones como "## 1", "## 2"
+    sanitized = sanitized.replace(/##\s*\d+/g, '');
 
-    // Remove numbered list markers (1. 2. etc.) - we add our own numbering
+    // Eliminar números con punto al inicio
     sanitized = sanitized.replace(/^\d+\.\s*/gm, '');
 
-    // Remove markdown code blocks
-    sanitized = sanitized.replace(/```/g, '');
-    sanitized = sanitized.replace(/`/g, '');
+    // Eliminar viñetas
+    sanitized = sanitized.replace(/^[\-\*\+]\s*/gm, '');
 
-    // Remove extra whitespace
+    // Eliminar múltiples espacios
     sanitized = sanitized.replace(/\s+/g, ' ').trim();
 
     return sanitized;
