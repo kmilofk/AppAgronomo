@@ -4,7 +4,7 @@
  * Desarrollado por Ing Hernan Camilo
  */
 
-const API_KEY = "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";
+const API_KEY = "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";
 const API_URL = "https://openrouter.ai/api/v1/chat/completions";
 
 async function consultarExpertoIA(promptUsuario, imagenBase64 = null, mimeType = "image/jpeg") {
