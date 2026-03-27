@@ -1,0 +1,417 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Campesino</title>
+    <!-- BoxIcons & Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href='https://unpkg.com/boxicons@2.1.4/css/boxicons.min.css' rel='stylesheet'>
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+    <div class="app-container">
+
+        <!-- PANTALLA 1: Login -->
+        <section id="screen-login" class="screen active">
+            <div class="login-wrapper">
+                <div class="logo-container">
+                    <i class='bx bxs-leaf main-logo-icon'></i>
+                    <h1>AgroRed</h1>
+                    <p>Tu campo, más inteligente</p>
+                </div>
+
+                <form id="login-form" class="auth-form">
+                    <div class="input-group">
+                        <label for="phone">Número de celular</label>
+                        <div class="input-wrapper">
+                            <i class='bx bx-phone'></i>
+                            <input type="tel" id="phone" value="3123456789" placeholder="Ej: 300 123 4567" required>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label for="referral">Código de agrónomo (Opcional)</label>
+                        <div class="input-wrapper">
+                            <i class='bx bx-id-card'></i>
+                            <input type="text" id="referral" placeholder="Ingresa el código">
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-primary btn-large">Ingresar</button>
+
+                    <p class="terms-text">
+                        Al ingresar aceptas nuestros <a href="#">Términos y Condiciones</a> y <a href="#">Política de
+                            Privacidad</a>.
+                    </p>
+                </form>
+            </div>
+        </section>
+
+        <!-- PANTALLA 2: Inicio -->
+        <section id="screen-home" class="screen">
+            <header class="app-header">
+                <div class="header-info">
+                    <h2>Hola, <span id="user-name-display">Juan</span></h2>
+                    <p>Popayán, Cauca</p>
+                </div>
+                <div class="header-avatar" id="nav-to-profile-btn">
+                    <img src="https://i.pravatar.cc/150?img=11" alt="Avatar">
+                </div>
+            </header>
+
+            <div class="screen-content scrollable">
+                <div class="main-action-card">
+                    <h3>¿Problemas con tu cultivo?</h3>
+                    <p>Nuestro modelo de IA te ayuda a diagnosticar plagas y enfermedades.</p>
+                    <div class="action-buttons">
+                        <button class="action-btn" id="btn-camera-home"><i class='bx bx-camera'></i> Tomar foto</button>
+                        <button class="action-btn" id="btn-upload-home"><i class='bx bx-image-add'></i> Subir
+                            imagen</button>
+                        <button class="action-btn" id="btn-write-home"><i class='bx bx-edit-alt'></i> Escribir</button>
+                    </div>
+                </div>
+
+                <div class="section-title">
+                    <h3>Mi Finca</h3>
+                    <a href="#" id="link-all-crops">Ver todo</a>
+                </div>
+                <div class="horizontal-scroll" id="home-crops-container">
+                    <!-- Dynamic Crops -->
+                </div>
+
+                <div class="section-title mt-3">
+                    <h3>Mi Agrónomo</h3>
+                </div>
+                <div class="agronomist-card">
+                    <img src="https://i.pravatar.cc/150?img=12" alt="Agronomist" class="agro-avatar">
+                    <div class="agro-info">
+                        <h4>Ing. Carlos Ruiz</h4>
+                        <p>Especialista en café y cacao</p>
+                    </div>
+                    <button class="btn-icon"><i class='bx bxl-whatsapp'></i></button>
+                </div>
+
+                <div class="section-title mt-3">
+                    <h3>Últimas Consultas</h3>
+                </div>
+                <div class="queries-list" id="home-queries-container">
+                    <!-- Dynamic Queries -->
+                </div>
+            </div>
+        </section>
+
+        <!-- PANTALLA 3: Consultar Cultivo -->
+        <section id="screen-consult" class="screen">
+            <header class="inner-header">
+                <h2>Nueva Consulta</h2>
+            </header>
+
+            <div class="screen-content scrollable">
+                <form id="consult-form" class="modern-consult-form">
+
+                    <!-- Dropzone -->
+                    <div class="dropzone-modern" id="upload-area">
+                        <i class='bx bx-camera' id="upload-icon"></i>
+                        <p id="upload-text">Toca aquí para tomar una foto<br>o subir una imagen de tu cultivo</p>
+                        <input type="file" id="crop-image" accept="image/*" capture="environment"
+                            style="display: none;">
+                        <img id="image-preview" src=""
+                            style="display:none; width: 100%; height: 100%; border-radius: var(--radius-lg); object-fit: cover;">
+                        <!-- Botón de eliminar/cambiar foto -->
+                        <button type="button" id="btn-remove-image" class="btn-remove-image" style="display: none;">
+                            <i class='bx bx-trash'></i> Cambiar foto
+                        </button>
+                    </div>
+
+                    <!-- Chat Textarea -->
+                    <div class="chat-input-wrapper">
+                        <textarea id="consult-desc" class="chat-textarea" rows="4"
+                            placeholder="Describe qué le pasa a tu planta..."></textarea>
+                    </div>
+
+                    <div class="plan-indicator">
+                        <i class='bx bx-info-circle'></i>
+                        <span id="queries-remaining-display">Consultas restantes hoy: 10/10</span>
+                    </div>
+
+                    <button type="submit" class="btn-submit-consult" id="btn-submit-consult">
+                        Analizar Cultivo <i class='bx bx-brain'></i>
+                    </button>
+                </form>
+            </div>
+        </section>
+
+        <!-- PANTALLA 4: Respuesta Diagnóstico -->
+        <section id="screen-diagnosis" class="screen">
+            <header class="inner-header with-back">
+                <button class="back-btn" id="btn-back-diagnosis"><i class='bx bx-arrow-back'></i></button>
+                <h2>Resultado del Análisis</h2>
+            </header>
+
+            <div class="screen-content scrollable bg-gray" id="diagnosis-container">
+                <div class="diagnosis-card">
+                    <div class="diagnosis-header">
+                        <div class="diagnosis-title">
+                            <i class='bx bx-check-shield text-green'></i>
+                            <h3 id="diag-title">Cargando...</h3>
+                        </div>
+                        <span class="confidence badge" id="diag-confidence">Generando</span>
+                    </div>
+
+                    <img id="diag-image" src="" alt="Cultivo consultado" class="diagnosis-img" style="display:none;">
+
+                    <div class="diagnosis-body">
+                        <h4>Diagnóstico</h4>
+                        <p id="diag-desc"
+                            style="font-size: 14px; margin-bottom: 24px; line-height: 1.5; color: var(--text-main);">
+                        </p>
+
+                        <h4>Recomendaciones Paso a Paso</h4>
+                        <ul class="steps-list" id="diag-steps">
+                            <!-- JS injected -->
+                        </ul>
+
+                        <div class="product-suggestion" id="diag-product-container" style="display:none;">
+                            <div class="product-icon"><i class='bx bxs-flask'></i></div>
+                            <div class="product-details">
+                                <h5 id="diag-product-name">Producto</h5>
+                                <p id="diag-product-dose">Dosis</p>
+                            </div>
+                        </div>
+
+                        <div class="agro-tip">
+                            <p><strong><i class='bx bxs-bulb'></i> Consejo del Agrónomo:</strong> <span
+                                    id="diag-tip"></span></p>
+                        </div>
+                    </div>
+
+                    <div class="feedback-actions">
+                        <p>¿Te fue útil este diagnóstico?</p>
+                        <div class="feedback-btns">
+                            <button class="btn-outline">Sí, me sirvió <i class='bx bx-like'></i></button>
+                            <button class="btn-outline">Ver al Agrónomo <i class='bx bxl-whatsapp'></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-secondary w-100 mt-3" id="btn-new-query">Realizar Otra Consulta</button>
+            </div>
+        </section>
+
+        <!-- PANTALLA 5: Mi Finca -->
+        <section id="screen-farm" class="screen">
+            <header class="inner-header">
+                <h2>Mis Cultivos</h2>
+                <button class="add-btn" id="btn-open-add-crop"><i class='bx bx-plus'></i></button>
+            </header>
+
+            <div class="screen-content scrollable">
+
+                <div class="expense-summary-card gradient-card">
+                    <p>Gastos del Mes</p>
+                    <h3>$785.000 <span style="font-size:14px; opacity:0.8;">COP</span></h3>
+                    <button class="btn-glass mt-2">Ver detalles</button>
+                </div>
+
+                <div class="section-title">
+                    <h3>Lista de Cultivos</h3>
+                </div>
+
+                <div class="crops-vertical-list" id="farm-crops-container">
+                    <!-- Dynamic Crops Vertical -->
+                </div>
+            </div>
+
+            <!-- Modal Agregar Cultivo -->
+            <div class="modal-overlay" id="add-crop-modal">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3>Agregar Cultivo</h3>
+                        <button class="close-modal" id="btn-close-modal"><i class='bx bx-x'></i></button>
+                    </div>
+                    <form id="add-crop-form" class="standard-form">
+                        <div class="input-group">
+                            <label>Nombre del Cultivo</label>
+                            <input type="text" placeholder="Ej: Tomate chonto" required>
+                        </div>
+                        <div class="row-inputs">
+                            <div class="input-group half">
+                                <label>Hectáreas</label>
+                                <input type="number" step="0.1" placeholder="0.0" required>
+                            </div>
+                            <div class="input-group half">
+                                <label>Fecha Siembra</label>
+                                <input type="date" required>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn-primary w-100 mt-2">Guardar Cultivo</button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+        <!-- PANTALLA 6: Planes -->
+        <section id="screen-plans" class="screen">
+            <header class="inner-header">
+                <h2>Planes y Suscripción</h2>
+            </header>
+
+            <div class="screen-content scrollable bg-gray pb-xl">
+                <div class="current-plan-banner">
+                    <div class="plan-info-top">
+                        <span class="badge badge-success">Plan Activo</span>
+                        <h4>Gratis</h4>
+                    </div>
+                    <p>Te quedan <strong>3 consultas</strong> el día de hoy.</p>
+                    <div class="progress-bar-container">
+                        <div class="progress-bar-fill" style="width: 100%;"></div>
+                    </div>
+                </div>
+
+                <div class="plans-grid">
+                    <!-- Basic Plan -->
+                    <div class="plan-card">
+                        <div class="plan-header">
+                            <h3>Básico</h3>
+                            <div class="plan-price">$15.000 <span>/mes</span></div>
+                        </div>
+                        <ul class="plan-features">
+                            <li><i class='bx bx-check'></i> 10 consultas por día</li>
+                            <li><i class='bx bx-check'></i> Historial de cultivos</li>
+                            <li><i class='bx bx-check'></i> Soporte por correo</li>
+                        </ul>
+                        <button class="btn-outline w-100 subscribe-btn" data-plan="Básico">Suscribirse</button>
+                    </div>
+
+                    <!-- Pro Plan (Featured) -->
+                    <div class="plan-card featured-plan">
+                        <div class="popular-badge">Más Popular</div>
+                        <div class="plan-header">
+                            <h3>Pro</h3>
+                            <div class="plan-price">$35.000 <span>/mes</span></div>
+                        </div>
+                        <ul class="plan-features">
+                            <li><i class='bx bx-check'></i> Consultas ilimitadas</li>
+                            <li><i class='bx bx-check'></i> Chat con Agrónomo</li>
+                            <li><i class='bx bx-check'></i> Alertas climáticas tempranas</li>
+                        </ul>
+                        <button class="btn-primary w-100 subscribe-btn" data-plan="Pro">Obtener Pro</button>
+                    </div>
+
+                    <!-- Premium Plan -->
+                    <div class="plan-card">
+                        <div class="plan-header">
+                            <h3>Premium</h3>
+                            <div class="plan-price">$75.000 <span>/mes</span></div>
+                        </div>
+                        <ul class="plan-features">
+                            <li><i class='bx bx-check'></i> Todo lo del plan Pro</li>
+                            <li><i class='bx bx-check'></i> Visita presencial trimestral</li>
+                            <li><i class='bx bx-check'></i> Análisis de suelo incluido</li>
+                        </ul>
+                        <button class="btn-outline w-100 subscribe-btn" data-plan="Premium">Suscribirse</button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- PANTALLA 7: Perfil -->
+        <section id="screen-profile" class="screen">
+            <header class="inner-header">
+                <h2>Mi Perfil</h2>
+            </header>
+
+            <div class="screen-content scrollable pb-xl">
+                <div class="profile-header-card">
+                    <div class="profile-avatar-large">
+                        <img src="https://i.pravatar.cc/150?img=11" alt="Juan Pérez">
+                        <button class="edit-avatar-btn"><i class='bx bxs-camera'></i></button>
+                    </div>
+                    <h3>Juan Pérez</h3>
+                    <p><i class='bx bx-map'></i> Popayán, Cauca</p>
+                    <p><i class='bx bx-phone'></i> 312 345 6789</p>
+                </div>
+
+                <div class="stats-grid mt-3">
+                    <div class="stat-card">
+                        <h4>15</h4>
+                        <p>Total Consultas</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>3</h4>
+                        <p>Mes Actual</p>
+                    </div>
+                    <div class="stat-card">
+                        <h4>3</h4>
+                        <p>Cultivos Activos</p>
+                    </div>
+                </div>
+
+                <div class="profile-section mt-3">
+                    <h4>Información de Suscripción</h4>
+                    <div class="settings-item">
+                        <div class="settings-icon"><i class='bx bx-credit-card-front'></i></div>
+                        <div class="settings-text">
+                            <h5>Plan Gratis</h5>
+                            <p>Actualizar para más beneficios</p>
+                        </div>
+                        <i class='bx bx-chevron-right' style="font-size:24px; color:#CBD5E1;"></i>
+                    </div>
+                </div>
+
+                <div class="profile-section mt-3">
+                    <h4>Mi Equipo</h4>
+                    <div class="settings-item">
+                        <div class="settings-icon"><i class='bx bx-user-pin'></i></div>
+                        <div class="settings-text">
+                            <h5>Ing. Carlos Ruiz</h5>
+                            <p>Agrónomo Asignado</p>
+                        </div>
+                        <div class="action-mini-btns">
+                            <button><i class='bx bx-phone'></i></button>
+                            <button><i class='bx bxl-whatsapp'></i></button>
+                        </div>
+                    </div>
+                </div>
+
+                <button class="btn-logout w-100 mt-3" id="btn-logout"><i class='bx bx-log-out'></i> Cerrar
+                    Sesión</button>
+            </div>
+        </section>
+
+        <!-- BOTTOM NAVIGATION -->
+        <nav class="bottom-nav hidden" id="bottom-navigation">
+            <a href="#" class="nav-item active" data-target="screen-home">
+                <i class='bx bx-home-alt'></i>
+                <span>Inicio</span>
+            </a>
+            <a href="#" class="nav-item" data-target="screen-farm">
+                <i class='bx bx-leaf'></i>
+                <span>Finca</span>
+            </a>
+            <a href="#" class="nav-item fab-nav" data-target="screen-consult">
+                <div class="fab-btn">
+                    <i class='bx bx-scan'></i>
+                </div>
+            </a>
+            <a href="#" class="nav-item" data-target="screen-plans">
+                <i class='bx bx-store-alt'></i>
+                <span>Planes</span>
+            </a>
+            <a href="#" class="nav-item" data-target="screen-profile">
+                <i class='bx bx-user'></i>
+                <span>Perfil</span>
+            </a>
+        </nav>
+
+    </div>
+
+    <!-- Scripts -->
+    <script src="gemini-service.js"></script>
+    <script src="script.js"></script>
+</body>
+
+</html>
